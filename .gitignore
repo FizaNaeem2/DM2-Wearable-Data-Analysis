@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.venv/
+venv/
+env/
+
+# Secrets / local configuration
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+credentials.json
+secrets.json
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Local data and generated artifacts
+*.tmp
+*.log

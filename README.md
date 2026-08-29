@@ -1,202 +1,152 @@
-# DM2 – Wearable Data Analysis
+# DM2 — Wearable & Tabular Data Mining
 
-Data Mining 2 project developed at the University of Pisa, Academic Year 2025–2026.
+Data Mining 2 project developed at the **University of Pisa** (Academic Year 2025–2026).
 
-## Project Overview
+This repository presents an end-to-end analysis of the **Child Mind Institute (CMI)** dataset, combining participant-level tabular information with wearable sensor time series to study problematic internet use and related physical/behavioral outcomes.
 
-This project analyzes the Child Mind Institute (CMI) dataset to investigate problematic internet use in children and adolescents.
+## Project at a Glance
 
-The main target is the Severity Impairment Index (`sii`), an ordinal variable ranging from:
+| Area | Methods |
+|---|---|
+| Data preparation | cleaning, missing-value analysis, KNN/median imputation, scaling, feature engineering |
+| Outlier detection | HBOS, LOF, KNN |
+| Imbalanced learning | class-imbalance strategies for SII prediction |
+| Tabular classification | Logistic Regression, SVM, Neural Network, Random Forest, boosting |
+| Regression | Random Forest and XGBoost regression, including BMI analysis |
+| Explainability | SHAP, LIME |
+| Time-series discovery | Matrix Profile, motifs, discords |
+| Time-series clustering | PAA, statistical features, K-Means, hierarchical clustering, DTW |
+| Time-series classification | KNN, DTW, Shapelets, MiniROCKET |
 
-- 0 – No impairment
-- 1 – Mild impairment
-- 2 – Moderate impairment
-- 3 – Severe impairment
+The principal classification target is the **Severity Impairment Index (`sii`)**, an ordinal variable:
 
-The project combines tabular and wearable time-series data and applies data preprocessing, outlier detection, imbalanced learning, classification, regression, explainability, clustering, motif/discord discovery, and time-series classification.
+- `0` — no impairment
+- `1` — mild impairment
+- `2` — moderate impairment
+- `3` — severe impairment
 
 ## Dataset
 
-### Tabular Data
+### Tabular component
 
-The tabular dataset contains 8,460 participants aged 5–22 and includes physical, behavioral, fitness, sleep, body-composition, and internet-use related attributes.
+The project works with **8,460 participant observations** and a broad set of physical, behavioral, fitness, sleep, body-composition and internet-use attributes.
 
-The preprocessing pipeline includes:
+The preparation pipeline covers biologically implausible values, missingness, KNN/median imputation, missingness indicators, duplicate analysis, feature engineering and model-ready transformations.
 
-- Detection of biologically impossible values
-- Missing-value handling
-- KNN and median imputation
-- Missingness indicators
-- Feature engineering
-- Duplicate analysis
-- Data scaling and preparation
+### Wearable time-series component
 
-### Time-Series Data
+The wearable analysis uses multivariate activity/sensor sequences. The processing workflow includes non-wear filtering, missing-value handling, gap-limited interpolation, correlation analysis, subject-level splitting, Piecewise Aggregate Approximation (PAA), and statistical feature extraction.
 
-The wearable component contains multivariate time series representing physical activity and sensor measurements.
+For the fixed-length representation used in the project, sequences contain **200 time steps and 7 channels**; PAA is also used to obtain a compact 20-segment representation for selected analyses.
 
-The time-series preprocessing includes:
+> The processed wearable dataset is not redistributed in this repository because of its size. The notebooks document the preprocessing and analysis workflow.
 
-- Non-wear detection and filtering
-- Missing-value handling
-- Gap-limited interpolation
-- Signal correlation analysis
-- Subject-level train/test splitting
-- Piecewise Aggregate Approximation (PAA)
-- Statistical feature extraction
+## Analysis Workflow
 
-PAA reduces the original 200-step sequences to 20 segments while preserving their overall temporal structure.
+### 1. Tabular preparation and anomaly analysis
 
-## Analysis Pipeline
+The raw participant data is cleaned and transformed before modelling. HBOS, Local Outlier Factor and KNN-based anomaly detection are then compared to examine different definitions of unusual observations.
 
-### 1. Tabular Data Preparation
+### 2. Imbalanced classification
 
-The raw tabular data is cleaned and transformed before modelling. Invalid physiological measurements are replaced with missing values, missing data is imputed, and additional features are engineered.
+Because `sii` is strongly imbalanced, the project evaluates imbalance-aware learning before comparing supervised classifiers. Both the original four-class target and a grouped three-class formulation are investigated.
 
-### 2. Outlier Detection
+Models explored include Logistic Regression, SVM, Neural Networks, Random Forest and boosting approaches.
 
-Three outlier-detection approaches are investigated:
+### 3. Regression and explainability
 
-- HBOS
-- Local Outlier Factor (LOF)
-- K-Nearest Neighbors (KNN)
+Random Forest and XGBoost regressors are used for continuous-outcome modelling, including a dedicated BMI analysis. SHAP and LIME are used to interpret model behaviour at global and local levels.
 
-Their detections are compared to identify structurally unusual observations and evaluate agreement between different definitions of anomalous behavior.
+### 4. Motifs and discords
 
-### 3. Imbalanced Learning
+Matrix Profile analysis identifies recurring **motifs** and unusual **discords** in wearable signals, providing a subsequence-level view of repeated and anomalous temporal behaviour.
 
-Because the SII target is strongly imbalanced, several strategies are evaluated to improve minority-class prediction.
+### 5. Time-series clustering
 
-### 4. Tabular Classification
-
-Several supervised-learning models are investigated:
-
-- Logistic Regression
-- Support Vector Machine (SVM)
-- Neural Network
-- Random Forest
-- XGBoost
-- AdaBoost
-
-Both the original four-class SII formulation and a grouped three-class formulation are investigated.
-
-### 5. Regression
-
-Regression models are used to study continuous physical outcomes and their relationship with problematic internet use.
-
-Models include:
-
-- Random Forest Regressor
-- XGBoost Regressor
-
-A dedicated analysis investigates prediction of physical BMI and its relationship with SII.
-
-### 6. Explainable AI
-
-Model behavior is interpreted using:
-
-- SHAP
-- LIME
-
-These methods are used to investigate feature importance and individual feature contributions.
-
-### 7. Time-Series Motifs and Discords
-
-Matrix Profile-based analysis is used to identify:
-
-- Motifs – recurring temporal patterns
-- Discords – unusual or anomalous subsequences
-
-### 8. Time-Series Clustering
-
-Multiple representations and clustering strategies are compared:
+Alternative representations and distance functions are compared through:
 
 - PAA + K-Means
-- Statistical Feature K-Means
-- DTW Hierarchical Clustering
-- Statistical Feature Hierarchical Clustering
+- statistical-feature K-Means
+- DTW hierarchical clustering
+- statistical-feature hierarchical clustering
 
-### 9. Time-Series Classification
+### 6. Time-series classification
 
-Time-series classification is investigated using:
-
-- KNN with Euclidean distance
-- KNN with DTW distance
-- Shapelet-based classification
-- MiniROCKET
-
-Shapelets are also compared with motifs and discords to investigate whether discriminative subsequences correspond to recurring or anomalous temporal behavior.
+Classification experiments include Euclidean and DTW KNN, Shapelet-based models and MiniROCKET. Shapelets are also considered alongside motifs and discords to contrast **discriminative**, **recurring**, and **anomalous** subsequences.
 
 ## Repository Structure
 
+```text
 DM2-Wearable-Data-Analysis/
-
-- `data/`
-  - `cmi_internet.csv`
-  - `data_dictionary.csv`
-
-- `notebooks/`
-  - `01_tabular_data_preprocessing.ipynb`
-  - `02_tabular_outlier_detection.ipynb`
-  - `03_tabular_imbalance_learning.ipynb`
-  - `04_tabular_logistic_regression.ipynb`
-  - `05_tabular_svm.ipynb`
-  - `06_tabular_svm_3class.ipynb`
-  - `07_tabular_neural_network.ipynb`
-  - `08_tabular_random_forest_shap.ipynb`
-  - `09_tabular_bmi_regression.ipynb`
-  - `10_tabular_xgboost_lime.ipynb`
-  - `11_time_series_preprocessing.ipynb`
-  - `12_time_series_motifs_discords.ipynb`
-  - `13_time_series_paa_dtw_clustering.ipynb`
-  - `14_time_series_feature_clustering.ipynb`
-  - `15_time_series_knn_shapelets.ipynb`
-  - `16_time_series_minirocket.ipynb`
-
-- `report/`
-  - `DM2_Wearable_Data_Analysis_Report.pdf`
-
-- `README.md`
+├── data/
+│   ├── cmi_internet.csv
+│   └── data_dictionary.csv
+├── notebooks/
+│   ├── 01_tabular_data_preprocessing.ipynb
+│   ├── 02_tabular_outlier_detection.ipynb
+│   ├── 03_tabular_imbalance_learning.ipynb
+│   ├── 04_tabular_logistic_regression.ipynb
+│   ├── 05_tabular_svm.ipynb
+│   ├── 06_tabular_svm_3class.ipynb
+│   ├── 07_tabular_neural_network.ipynb
+│   ├── 08_tabular_random_forest_shap.ipynb
+│   ├── 09_tabular_bmi_regression.ipynb
+│   ├── 10_tabular_xgboost_lime.ipynb
+│   ├── 11_time_series_preprocessing.ipynb
+│   ├── 12_time_series_motifs_discords.ipynb
+│   ├── 13_time_series_paa_dtw_clustering.ipynb
+│   ├── 14_time_series_feature_clustering.ipynb
+│   ├── 15_time_series_knn_shapelets.ipynb
+│   └── 16_time_series_minirocket.ipynb
+├── report/
+│   └── DM2_Wearable_Data_Analysis_Report.pdf
+├── .gitignore
+└── README.md
+```
 
 ## Notebook Guide
 
-| Notebook | Analysis |
-|---|---|
-| 01 | Tabular data cleaning and preprocessing |
-| 02 | HBOS, LOF and KNN outlier detection |
-| 03 | Imbalanced-learning analysis |
-| 04 | Logistic Regression classification |
-| 05 | SVM classification |
-| 06 | Three-class SVM classification |
-| 07 | Neural Network classification |
-| 08 | Random Forest and SHAP explainability |
-| 09 | BMI regression analysis |
-| 10 | XGBoost regression and LIME explainability |
-| 11 | Time-series preprocessing and exploratory analysis |
-| 12 | Matrix Profile, motifs and discords |
-| 13 | PAA and DTW-based clustering |
-| 14 | Statistical feature-based clustering |
-| 15 | KNN and Shapelet time-series classification |
-| 16 | MiniROCKET time-series classification |
+| # | Notebook | Focus |
+|---:|---|---|
+| 01 | `01_tabular_data_preprocessing.ipynb` | Cleaning, missingness and preprocessing |
+| 02 | `02_tabular_outlier_detection.ipynb` | HBOS, LOF and KNN outliers |
+| 03 | `03_tabular_imbalance_learning.ipynb` | Imbalanced learning |
+| 04 | `04_tabular_logistic_regression.ipynb` | Logistic Regression |
+| 05 | `05_tabular_svm.ipynb` | SVM classification |
+| 06 | `06_tabular_svm_3class.ipynb` | Three-class SVM |
+| 07 | `07_tabular_neural_network.ipynb` | Neural Network |
+| 08 | `08_tabular_random_forest_shap.ipynb` | Random Forest + SHAP |
+| 09 | `09_tabular_bmi_regression.ipynb` | BMI regression |
+| 10 | `10_tabular_xgboost_lime.ipynb` | XGBoost + LIME |
+| 11 | `11_time_series_preprocessing.ipynb` | Wearable preprocessing and EDA |
+| 12 | `12_time_series_motifs_discords.ipynb` | Matrix Profile, motifs and discords |
+| 13 | `13_time_series_paa_dtw_clustering.ipynb` | PAA and DTW clustering |
+| 14 | `14_time_series_feature_clustering.ipynb` | Feature-based clustering |
+| 15 | `15_time_series_knn_shapelets.ipynb` | KNN, DTW and Shapelets |
+| 16 | `16_time_series_minirocket.ipynb` | MiniROCKET classification |
+
+## Reproducibility
+
+The notebooks are ordered according to the project workflow. Some later time-series notebooks depend on processed wearable arrays produced during preprocessing and therefore require access to the original wearable data.
+
+To reproduce an analysis, open the relevant notebook in Jupyter/Colab and install the packages imported by that notebook. Local environments, credentials, notebook checkpoints and secret files are excluded through `.gitignore`.
 
 ## Data Availability
 
-The tabular dataset and data dictionary are included in the `data/` directory.
+`data/cmi_internet.csv` and `data/data_dictionary.csv` are included for the tabular analysis. The larger processed wearable arrays are intentionally not committed.
 
-The processed wearable time-series dataset is not stored directly in the repository because of its larger file size. The time-series notebooks document the processing and analysis performed on this data.
+Users of the repository should follow the original dataset's terms and usage requirements when obtaining or redistributing source data.
 
-## Project Report
+## Full Project Report
 
-The complete methodology, experiments, results, figures, and discussion are available in:
+The complete methodology, experiments, figures, results and discussion are available in:
 
-`report/DM2_Wearable_Data_Analysis_Report.pdf`
+**[DM2 Wearable Data Analysis Report](report/DM2_Wearable_Data_Analysis_Report.pdf)**
 
 ## Authors
 
-- Fiza Naeem
-- Lorena Sorce
-- Nague Ivane Maeva
+- **Fiza Naeem**
+- **Lorena Sorce**
+- **Nague Ivane Maeva**
 
-**University of Pisa**  
-**Data Mining 2**  
-**Academic Year 2025–2026**
+**University of Pisa — Data Mining 2 — Academic Year 2025–2026**
